@@ -9,12 +9,12 @@ load_dotenv()
 
 # Get the current working directory and credentials file from environment variables
 current_dir = os.getcwd()
-credentials_file = os.getenv('CREDENTIALS_FILE')
+credentials_file = os.getenv("CREDENTIALS_FILE")
 credentials_path = os.path.join(current_dir, credentials_file)
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
-    
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+
 publisher = pubsub_v1.PublisherClient()
-topic_path = os.getenv('TOPIC_PATH')
+topic_path = os.getenv("TOPIC_PATH")
 
 # Publish 5 messages to the topic with randomize temperature in range 15 to 35
 for _ in range(5):
