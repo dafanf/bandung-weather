@@ -1,6 +1,7 @@
 import os
 import random
 import time
+import uuid
 from google.cloud import pubsub_v1
 from dotenv import load_dotenv
 
@@ -16,10 +17,13 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
 publisher = pubsub_v1.PublisherClient()
 topic_path = os.getenv('TOPIC_PATH')
 
-# Publish 5 messages to the topic with randomize temperature in range 15 to 35
+# Generate a unique ID for the publisher
+publisher_id = 1 
+
+# Publish 5 messages to the topic with randomized temperature in the range of 15 to 35
 for _ in range(5):
     temperature = random.randint(15, 35)
-    data = f"Temperature: {temperature}"
+    data = f"Publisher ID: {publisher_id}, Temperature: {temperature}"
     data_encoded = data.encode("utf-8")
     future = publisher.publish(topic_path, data_encoded)
     print(f"Published message id : {future.result()}")
