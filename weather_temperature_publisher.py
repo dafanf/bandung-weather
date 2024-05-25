@@ -18,10 +18,10 @@ publisher = pubsub_v1.PublisherClient()
 topic_path = os.getenv('TOPIC_PATH')
 
 # Generate a unique ID for the publisher
-publisher_id = 1 
+publisher_id = 2 
 
 # Publish 5 messages to the topic with randomized temperature in the range of 15 to 35
-for _ in range(5):
+for _ in range(50):
     temperature = random.randint(15, 35)
     data = f"Publisher ID: {publisher_id}, Temperature: {temperature}"
     data_encoded = data.encode("utf-8")
