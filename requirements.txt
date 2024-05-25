@@ -1,6 +1,9 @@
+blinker==1.8.2
 cachetools==5.3.3
 certifi==2024.2.2
 charset-normalizer==3.3.2
+click==8.1.7
+Flask==3.0.3
 google-api-core==2.18.0
 google-auth==2.29.0
 google-cloud-pubsub==2.21.0
@@ -9,6 +12,9 @@ grpc-google-iam-v1==0.13.0
 grpcio==1.62.1
 grpcio-status==1.62.1
 idna==3.6
+itsdangerous==2.2.0
+Jinja2==3.1.4
+MarkupSafe==2.1.5
 proto-plus==1.23.0
 protobuf==4.25.3
 pyasn1==0.6.0
@@ -17,3 +23,4 @@ python-dotenv==1.0.1
 requests==2.31.0
 rsa==4.9
 urllib3==2.2.1
+Werkzeug==3.0.3
