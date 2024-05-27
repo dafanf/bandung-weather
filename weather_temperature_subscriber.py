@@ -1,7 +1,7 @@
 import os
-from dotenv import load_dotenv
 import time
 from google.cloud import pubsub_v1
+from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -12,56 +12,52 @@ credentials_file = os.getenv("CREDENTIALS_FILE")
 credentials_path = os.path.join(current_dir, credentials_file)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
-timeout = 600.0  # Set the timeout duration
-
-# Create a subscriber client
 subscriber = pubsub_v1.SubscriberClient()
-subscriber_path = os.getenv("SUBSCRIBER_PATH")
+subscription_path = os.getenv("SUBSCRIBER_PATH")
 
-# Dictionary to store temperatures for each publisher
-publisher_temperatures = {}
+# Check if subscription_path is correctly set
+if not subscription_path:
+    raise ValueError("SUBSCRIPTION_PATH environment variable is not set.")
+
+# Store temperature readings by client for calculating the average
+temperature_by_client = {}
+all_temperatures = []
 
 
 def callback(message):
-    publisher_id = message.attributes.get("publisher_id", "Unknown")
-    data = message.data.decode("utf-8")
-    print(f"Received message from Publisher ID: {publisher_id}")
-    print(f"Data: {data}")
+    data_str = message.data.decode("utf-8")
+    temperature_str = data_str.split(": ")[1].rstrip(" C")
+    temperature = float(temperature_str)
 
-    # Extract temperature value from the data
-    try:
-        temperature = float(data.split(": ")[1].replace(" C", ""))
-    except (IndexError, ValueError) as e:
-        print(f"Failed to extract temperature: {e}")
-        message.ack()
-        return
+    client_id = message.attributes["publisher_id"]
+    if client_id not in temperature_by_client:
+        temperature_by_client[client_id] = []
+    temperature_by_client[client_id].append(temperature)
+    all_temperatures.append(temperature)
 
-    # Update temperature list for the publisher
-    if publisher_id not in publisher_temperatures:
-        publisher_temperatures[publisher_id] = []
-    publisher_temperatures[publisher_id].append(temperature)
+    print(f"======================= CLIENT {client_id} ======================")
+    print(f"Suhu: {temperature_str}")
 
-    # Calculate and display the average temperature for the publisher
-    average_temperature = sum(publisher_temperatures[publisher_id]) / len(
-        publisher_temperatures[publisher_id]
-    )
-    print(
-        f"Publisher ID: {publisher_id}, Average Temperature: {average_temperature:.2f} C"
-    )
+    # Calculate and print the average temperature for the current client
+    temps_client = temperature_by_client[client_id]
+    avg_temp_client = sum(temps_client) / len(temps_client)
+    print(f"Rata-rata suhu untuk Client ID {client_id}: {avg_temp_client:.2f}")
+    print("=====================================================================\n")
+
+    # Calculate and print the average temperature for all clients
+    avg_temp_all = sum(all_temperatures) / len(all_temperatures)
+    print("========================= SUHU KOTA BANDUNG =========================")
+    print(f"Rata-rata Suhu: {avg_temp_all:.2f}")
+    print("=====================================================================\n")
 
     message.ack()
 
 
-# Subscribe to the topic and listen for messages
-streaming_pull_future = subscriber.subscribe(subscriber_path, callback=callback)
-print(f"Listening for messages on {subscriber_path}")
+streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+print(f"Listening for messages on {subscription_path}...\n")
 
-with subscriber:
-    try:
-        # Wait for the specified timeout duration
-        streaming_pull_future.result(timeout=timeout)
-    except TimeoutError:
-        # Handle timeout situations
-        print(f"Streaming pull future timeout of {timeout} seconds.")
-        streaming_pull_future.cancel()
-        streaming_pull_future.result()
+# Keep the main thread alive to keep receiving messages
+try:
+    streaming_pull_future.result()
+except KeyboardInterrupt:
+    streaming_pull_future.cancel()
