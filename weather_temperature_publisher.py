@@ -15,11 +15,11 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
 publisher = pubsub_v1.PublisherClient()
 topic_path = os.getenv("TOPIC_PATH")
-publisher_id = "Publisher_12345"  # Define a unique Publisher ID
+publisher_id = "Publisher_C0001"  # Define a unique Publisher ID
 
 
 def fetch_temperature_data():
-    url = "https://cuaca-gempa-rest-api.vercel.app/weather/jawa-barat/bandung"
+    url = "https://cuaca-gempa-rest-api.vercel.app/weather/jawa-barat/bandung"  # /cimahi, /lembang
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
